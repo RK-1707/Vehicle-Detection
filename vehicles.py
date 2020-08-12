@@ -62,6 +62,20 @@ class Car:
                 return False
         else:
             return False
+        
+    def going_Right(self, mid_start, mid_end):
+        if len(self.tracks)>=2:
+            if self.state=='0':
+                if self.tracks[-1][0]>mid_end and self.tracks[-2][0]<=mid_end:
+                    state='1'
+                    self.dir='right'
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return False
 
     def age_one(self):
         self.age+=1
