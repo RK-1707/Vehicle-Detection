@@ -4,6 +4,7 @@ import vehicles
 from datetime import datetime
 
 cnt_left=0
+cnt_right=0
 
 cap=cv2.VideoCapture("pivideo.mp4")
 
@@ -15,15 +16,21 @@ width=int(cap.get(3))
 w=cap.get(3)
 h=cap.get(4)
 frameArea=h*w
-areaTH=50
+areaTH=40
 
-#Line
+#line_left
 line_left=int(2*(w/5))
+line_right=int(w/2)
 line_left_color=(0,0,255)
+line_right_color=(255,0,0)
 pt1 =  [line_left, 0]
 pt2 =  [line_left, h]
 pts_L1 = np.array([pt1,pt2], np.int32)
 pts_L1 = pts_L1.reshape((-1,1,2))
+pt3 =  [line_right, 0]
+pt4 =  [line_right, h]
+pts_L2 = np.array([pt3,pt4], np.int32)
+pts_L2 = pts_L2.reshape((-1,1,2))
 
 #Background Subtractor
 fgbg=cv2.createBackgroundSubtractorMOG2(detectShadows=True)
@@ -74,8 +81,11 @@ while(cap.isOpened()):
                             i.updateCoords(cx, cy)
 
                             if i.going_Left(w, line_left)==True:
-                                cnt_left+=1                               
+                                cnt_left+=1  
+                            elif i.going_Right(0, line_right)==True:
+                                cnt_right+=1
                             break
+                        
                         if i.getState()=='1': 
                             if i.getDir()=='left'and i.getX()>0:
                                 i.setDone()
@@ -92,11 +102,14 @@ while(cap.isOpened()):
 
                 img=cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)
         
-        str_left='VEHICLES: '+str(cnt_left)
+        str_left='LEFT: '+str(cnt_left)
+        str_right='RIGHT: '+str(cnt_right)
         
         frame=cv2.polylines(frame,[pts_L1],False,line_left_color,thickness=2) 
+        frame=cv2.polylines(frame,[pts_L2],False,line_right_color,thickness=2)
         
         cv2.putText(frame, str_left, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1, cv2.LINE_AA)
+        cv2.putText(frame, str_right, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1, cv2.LINE_AA)
         cv2.imshow('Frame',frame)
         
         totalFrames += 1
